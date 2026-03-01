@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 // Top of a deck
 static Card *top = NULL;
@@ -51,6 +52,42 @@ void init_deck(void) {
 
         ptr_list[idx] = card;
         idx++;
+    }
+}
+
+void shuffle_deck(uint32_t n) {
+    if (top == NULL) {
+        return;
+    }
+
+    srand(time(NULL));
+
+    uint32_t i = 0;
+    while (1) {
+        int idx = rand() % NUM_CARDS;
+        Card *card = top;
+        // Get idx-th card from the deck
+        for (int j = 0; j < idx; j++) {
+            card = card->next;
+            if (card == NULL) {
+                continue;
+            }
+        }
+
+        // Remove card temporally from the deck
+        card->prev->next = card->next;
+        card->next->prev = card->prev;
+
+        // Move i-th card to the top
+        card->prev = NULL;
+        card->next = top;
+        top->prev = card;
+        top = card;
+
+        i++;
+        if (i == n) {
+            break;
+        }
     }
 }
 
@@ -104,7 +141,7 @@ static char *get_num_str(const Card *card) {
     }
 }
 
-char *get_card_str(const Card *card) {
+static char *get_card_str(const Card *card) {
     static char buf[5];
     if (card->suit == JOKER) {
         snprintf(buf, sizeof(buf), "%s", get_suit_str(card));
@@ -113,6 +150,15 @@ char *get_card_str(const Card *card) {
                  get_num_str(card));
     }
     return buf;
+}
+
+void print_cards(Card *hand) {
+    Card *cur = hand;
+    while (cur != NULL) {
+        printf("%s ", get_card_str(cur));
+        cur = cur->next;
+    }
+    printf("\n");
 }
 
 Card *draw_from_deck(void) {
@@ -130,6 +176,24 @@ Card *draw_from_deck(void) {
     drawn->next = NULL;
 
     return drawn;
+}
+
+Card *draw_hand(void) {
+    Card *head = NULL;
+    Card *prev = head;
+
+    for (int i = 0; i < 5; i++) {
+        Card *card = draw_from_deck();
+        if (head == NULL) {
+            head = card;
+        } else {
+            prev->next = card;
+        }
+
+        prev = card;
+    }
+
+    return head;
 }
 
 void release_deck(void) {

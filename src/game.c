@@ -5,16 +5,10 @@
 int main(void) {
     init_deck();
 
-    // See all cards in a deck
-    while (1) {
-        Card *card = draw_from_deck();
-        if (card == NULL) {
-            break;
-        }
+    shuffle_deck(100);
 
-        printf("%s ", get_card_str(card));
-    }
-    printf("\n");
+    Card *hand = draw_hand();
+    print_cards(hand);
 
     release_deck();
 

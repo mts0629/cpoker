@@ -3,8 +3,10 @@
 
 #include <stdint.h>
 
+// Suit
 typedef enum { HEART, DIAMOND, CLUB, SPADE, JOKER, NONE } Suit;
 
+// Card
 typedef struct Card {
     Suit suit;
     uint8_t number;
@@ -12,12 +14,22 @@ typedef struct Card {
     struct Card *next;
 } Card;
 
+// Initialize a deck
 void init_deck(void);
 
-char *get_card_str(const Card *card);
+// Shuffle cards in a deck n times
+void shuffle_deck(const uint32_t n);
 
+// Print cards
+void print_cards(Card *hand);
+
+// Draw a card from a top of the deck
 Card *draw_from_deck(void);
 
+// Draw a hand (5 cards) from a top of the deck
+Card *draw_hand(void);
+
+// Release allocated memories
 void release_deck(void);
 
 #endif  // CARD_H
