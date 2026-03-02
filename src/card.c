@@ -9,8 +9,8 @@ static Card *top = NULL;
 
 #define NUM_CARDS 4 * 13 + 2
 
-// List of pointers of allocated memory
-static Card *ptr_list[NUM_CARDS];
+// List of pointers of cards (used for deallocation)
+static Card *card_ptrs[NUM_CARDS];
 
 void init_deck(void) {
     Card *prev = top;
@@ -33,7 +33,7 @@ void init_deck(void) {
 
             prev = card;
 
-            ptr_list[idx] = card;
+            card_ptrs[idx] = card;
             idx++;
         }
     }
@@ -50,7 +50,7 @@ void init_deck(void) {
 
         prev = card;
 
-        ptr_list[idx] = card;
+        card_ptrs[idx] = card;
         idx++;
     }
 }
@@ -63,15 +63,16 @@ void shuffle_deck(uint32_t n) {
     srand(time(NULL));
 
     uint32_t i = 0;
-    while (1) {
+    while (i < n) {
         int idx = rand() % NUM_CARDS;
+
         Card *card = top;
         // Get idx-th card from the deck
         for (int j = 0; j < idx; j++) {
             card = card->next;
-            if (card == NULL) {
-                continue;
-            }
+            // if (card == NULL) {
+            //     continue;
+            // }
         }
 
         // Remove card temporally from the deck
@@ -85,9 +86,6 @@ void shuffle_deck(uint32_t n) {
         top = card;
 
         i++;
-        if (i == n) {
-            break;
-        }
     }
 }
 
@@ -116,8 +114,9 @@ static char *get_suit_str(const Card *card) {
 }
 
 static char *get_num_str(const Card *card) {
-    if (card->suit == JOKER) {
-        return "";
+    if (card->number > 13) {
+        fprintf(stderr, "Invalid number\n");
+        return NULL;
     }
 
     static char buf[3];
@@ -143,19 +142,22 @@ static char *get_num_str(const Card *card) {
 
 static char *get_card_str(const Card *card) {
     static char buf[5];
-    if (card->suit == JOKER) {
-        snprintf(buf, sizeof(buf), "%s", get_suit_str(card));
-    } else {
-        snprintf(buf, sizeof(buf), "%s:%s", get_suit_str(card),
-                 get_num_str(card));
-    }
+    snprintf(buf, sizeof(buf), "%s%c%s", get_suit_str(card),
+             ((card->suit == JOKER) ? '\0' : ':'),
+             ((card->suit == JOKER) ? '\0' : get_num_str(card)));
+
     return buf;
 }
 
 void print_cards(Card *hand) {
     Card *cur = hand;
-    while (cur != NULL) {
-        printf("%s ", get_card_str(cur));
+    while (1) {
+        printf("%s", get_card_str(cur));
+        if (cur->next == NULL) {
+            break;
+        }
+
+        printf(" ");
         cur = cur->next;
     }
     printf("\n");
@@ -196,8 +198,8 @@ Card *draw_hand(void) {
     return head;
 }
 
-void release_deck(void) {
+void fini_deck(void) {
     for (int i = 0; i < NUM_CARDS; i++) {
-        free(ptr_list[i]);
+        free(card_ptrs[i]);
     }
 }

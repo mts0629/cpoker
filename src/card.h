@@ -14,7 +14,7 @@ typedef struct Card {
     struct Card *next;
 } Card;
 
-// Initialize a deck
+// Initialize the deck
 void init_deck(void);
 
 // Shuffle cards in a deck n times
@@ -29,7 +29,7 @@ Card *draw_from_deck(void);
 // Draw a hand (5 cards) from a top of the deck
 Card *draw_hand(void);
 
-// Release allocated memories
-void release_deck(void);
+// Finalize the deck
+void fini_deck(void);
 
 #endif  // CARD_H

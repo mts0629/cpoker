@@ -10,7 +10,7 @@ int main(void) {
     Card *hand = draw_hand();
     print_cards(hand);
 
-    release_deck();
+    fini_deck();
 
     return 0;
 }
