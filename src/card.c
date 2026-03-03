@@ -70,9 +70,6 @@ void shuffle_deck(uint32_t n) {
         // Get idx-th card from the deck
         for (int j = 0; j < idx; j++) {
             card = card->next;
-            // if (card == NULL) {
-            //     continue;
-            // }
         }
 
         // Remove card temporally from the deck
@@ -86,6 +83,64 @@ void shuffle_deck(uint32_t n) {
         top = card;
 
         i++;
+    }
+}
+
+void sort_cards(Card *cards) {
+    Card *top = cards;
+    Card *tmp = top->next;
+
+    while (top != NULL) {
+        uint8_t top_n = ((uint8_t)top->suit << 8) | top->number;
+        uint8_t tmp_n = ((uint8_t)tmp->suit << 8) | tmp->number;
+
+        if (tmp_n < top_n) {
+            tmp->prev->next = tmp->next;
+            if (tmp->next != NULL) {
+                tmp->next->prev = tmp->prev;
+            }
+
+            tmp->next = top;
+
+            if (top->prev != NULL) {
+                tmp->prev = top->prev;
+                top->prev->next = tmp;
+            } else {
+                tmp->prev = NULL;
+            }
+
+            top->prev = tmp;
+
+            top = tmp;
+            tmp = top->next;
+
+            continue;
+        }
+
+        if (tmp->next == NULL) {
+            if (top->next != NULL) {
+                top = top->next;
+                tmp = top->next;
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        tmp = tmp->next;
+    }
+
+    if (top->prev == NULL) {
+        cards = top;
+    } else {
+        Card *new_top = top;
+        while (1) {
+            if (new_top->prev != NULL) {
+                new_top = new_top->prev;
+            } else {
+                break;
+            }
+        }
     }
 }
 
@@ -190,6 +245,7 @@ Card *draw_hand(void) {
             head = card;
         } else {
             prev->next = card;
+            card->prev = prev;
         }
 
         prev = card;

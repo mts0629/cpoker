@@ -20,6 +20,9 @@ void init_deck(void);
 // Shuffle cards in a deck n times
 void shuffle_deck(const uint32_t n);
 
+// Sort cards
+void sort_cards(Card *cards);
+
 // Print cards
 void print_cards(Card *hand);
 
