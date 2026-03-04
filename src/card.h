@@ -21,7 +21,7 @@ void init_deck(void);
 void shuffle_deck(const uint32_t n);
 
 // Sort cards
-void sort_cards(Card *cards);
+Card *sort_cards(Card *cards);
 
 // Print cards
 void print_cards(Card *hand);

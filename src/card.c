@@ -86,62 +86,58 @@ void shuffle_deck(uint32_t n) {
     }
 }
 
-void sort_cards(Card *cards) {
-    Card *top = cards;
-    Card *tmp = top->next;
+Card *sort_cards(Card *cards) {
+    Card *unsorted_head = cards;      // Head of unsorted part in the cards
+    Card *cmp = unsorted_head->next;  // Card to be compared
 
-    while (top != NULL) {
-        uint8_t top_n = ((uint8_t)top->suit << 8) | top->number;
-        uint8_t tmp_n = ((uint8_t)tmp->suit << 8) | tmp->number;
+    while (1) {
+        uint8_t unsorted_head_n =
+            ((uint8_t)unsorted_head->suit << 4) | unsorted_head->number;
+        uint8_t cmp_n = ((uint8_t)cmp->suit << 4) | cmp->number;
 
-        if (tmp_n < top_n) {
-            tmp->prev->next = tmp->next;
-            if (tmp->next != NULL) {
-                tmp->next->prev = tmp->prev;
+        if (cmp_n < unsorted_head_n) {
+            // If cmp is smaller than unsorted_head, move cmp to the
+            // unsorted_head
+            cmp->prev->next = cmp->next;
+            if (cmp->next != NULL) {
+                cmp->next->prev = cmp->prev;
             }
-
-            tmp->next = top;
-
-            if (top->prev != NULL) {
-                tmp->prev = top->prev;
-                top->prev->next = tmp;
-            } else {
-                tmp->prev = NULL;
+            cmp->next = unsorted_head;
+            if (unsorted_head->prev != NULL) {
+                // If unsorted_head has previous cards, insert cmp
+                unsorted_head->prev->next = cmp;
             }
+            cmp->prev = unsorted_head->prev;
+            unsorted_head->prev = cmp;
 
-            top->prev = tmp;
-
-            top = tmp;
-            tmp = top->next;
+            // And restart comparison from unsorted_head
+            unsorted_head = cmp;
+            cmp = unsorted_head->next;
 
             continue;
         }
 
-        if (tmp->next == NULL) {
-            if (top->next != NULL) {
-                top = top->next;
-                tmp = top->next;
-                continue;
-            } else {
+        // If cmp is the last card, move unsorted_head to its next card
+        if (cmp->next == NULL) {
+            unsorted_head = unsorted_head->next;
+            // If unsorted_head is the last card, finish
+            if (unsorted_head->next == NULL) {
                 break;
             }
+            cmp = unsorted_head->next;
+            continue;
         }
 
-        tmp = tmp->next;
+        cmp = cmp->next;
     }
 
-    if (top->prev == NULL) {
-        cards = top;
-    } else {
-        Card *new_top = top;
-        while (1) {
-            if (new_top->prev != NULL) {
-                new_top = new_top->prev;
-            } else {
-                break;
-            }
-        }
+    // Update the head of the cards
+    Card *new_head = unsorted_head;
+    while (new_head->prev != NULL) {
+        new_head = new_head->prev;
     }
+
+    return new_head;
 }
 
 static char *get_suit_str(const Card *card) {
@@ -197,9 +193,15 @@ static char *get_num_str(const Card *card) {
 
 static char *get_card_str(const Card *card) {
     static char buf[5];
-    snprintf(buf, sizeof(buf), "%s%c%s", get_suit_str(card),
-             ((card->suit == JOKER) ? '\0' : ':'),
-             ((card->suit == JOKER) ? '\0' : get_num_str(card)));
+    if (card->suit == JOKER) {
+        snprintf(buf, sizeof(buf), "%s", get_suit_str(card));
+    } else {
+        snprintf(buf, sizeof(buf), "%s:%s", get_suit_str(card),
+                 get_num_str(card));
+    }
+    // snprintf(buf, sizeof(buf), "%s%c%s", get_suit_str(card),
+    //          ((card->suit == JOKER) ? '\0' : ':'),
+    //          ((card->suit == JOKER) ? "\0" : get_num_str(card)));
 
     return buf;
 }

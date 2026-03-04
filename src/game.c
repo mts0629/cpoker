@@ -9,8 +9,7 @@ int main(void) {
 
     Card *hand = draw_hand();
 
-    sort_cards(hand);
-
+    hand = sort_cards(hand);
     print_cards(hand);
 
     fini_deck();
