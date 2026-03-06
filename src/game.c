@@ -30,25 +30,68 @@ Hand get_hand(Card *hand) {
         .num_count = {0},
     };
 
-    Hand h = NO_PAIR;
     Card *c = sorted;
+    uint8_t min_num = UINT8_MAX;
+    uint8_t max_num = 0;
     while (c != NULL) {
         count.suit_count[c->suit]++;
         count.num_count[c->number]++;
+
+        if (c->number < min_num) {
+            min_num = c->number;
+        }
+        if (c->number > max_num) {
+            max_num = c->number;
+        }
+
         c = c->next;
     }
 
-    int count_pair = 0;
+    Hand h = NO_PAIR;
+    int count_pairs = 0;
+    int num_series = 1;
     for (int i = 1; i <= 13; i++) {
         if (count.num_count[i] == 2) {
-            count_pair++;
+            count_pairs++;
+        }
+        if (count.num_count[i] == 3) {
+            h = THREE_OF_A_KIND;
+        }
+        if (count.num_count[i] == 4) {
+            h = FOUR_OF_A_KIND;
+        }
+        if ((count.num_count[i - 1] == 1) && (count.num_count[i] == 1)) {
+            num_series++;
         }
     }
 
-    if (count_pair == 1) {
-        h = ONE_PAIR;
-    } else if (count_pair == 2) {
+    if (count_pairs == 1) {
+        if (h == THREE_OF_A_KIND) {
+            h = FULL_HOUSE;
+        } else {
+            h = ONE_PAIR;
+        }
+    } else if (count_pairs == 2) {
         h = TWO_PAIR;
+    }
+
+    if ((num_series == 5) ||
+        ((num_series == 4) && (min_num == 1) && (max_num == 13))) {
+        h = STRAIGHT;
+    }
+
+    for (int i = 0; i < 4; i++) {
+        if (count.suit_count[i] == 5) {
+            if (h == STRAIGHT) {
+                if ((min_num == 1) && (max_num == 13)) {
+                    h = ROYAL_FLUSH;
+                } else {
+                    h = STRAIGHT_FLUSH;
+                }
+            } else {
+                h = FLUSH;
+            }
+        }
     }
 
     return h;
