@@ -13,12 +13,11 @@ typedef enum {
     FULL_HOUSE,
     FOUR_OF_A_KIND,
     STRAIGHT_FLUSH,
-    ROYAL_FLUSH,
-    FIVE_OF_A_KIND,
+    ROYAL_FLUSH
 } Hand;
 
 typedef struct {
-    int suit_count[5];
+    int suit_count[4];
     int num_count[14];
 } Count;
 
@@ -129,9 +128,6 @@ char *get_hand_str(const Hand hand) {
             break;
         case ROYAL_FLUSH:
             return "Royal flush";
-            break;
-        case FIVE_OF_A_KIND:
-            return "Five of a kind";
             break;
         default:
             fprintf(stderr, "Invalid hand\n");

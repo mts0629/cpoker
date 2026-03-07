@@ -7,7 +7,7 @@
 // Top of a deck
 static Card *top = NULL;
 
-#define NUM_CARDS 4 * 13 + 2
+#define NUM_CARDS 4 * 13
 
 // List of pointers of cards (used for deallocation)
 static Card *card_ptrs[NUM_CARDS];
@@ -36,22 +36,6 @@ void init_deck(void) {
             card_ptrs[idx] = card;
             idx++;
         }
-    }
-
-    // Add jokers
-    for (int i = 0; i < 2; i++) {
-        Card *card = malloc(sizeof(Card));
-        card->suit = JOKER;
-        card->number = 0;
-        card->prev = prev;
-        card->next = NULL;
-
-        prev->next = card;
-
-        prev = card;
-
-        card_ptrs[idx] = card;
-        idx++;
     }
 }
 
@@ -154,9 +138,6 @@ static char *get_suit_str(const Card *card) {
         case SPADE:
             return "S";
             break;
-        case JOKER:
-            return "JOK";
-            break;
         default:
             fprintf(stderr, "Invalid suit\n");
             return NULL;
@@ -193,15 +174,7 @@ static char *get_num_str(const Card *card) {
 
 static char *get_card_str(const Card *card) {
     static char buf[5];
-    if (card->suit == JOKER) {
-        snprintf(buf, sizeof(buf), "%s", get_suit_str(card));
-    } else {
-        snprintf(buf, sizeof(buf), "%s:%s", get_suit_str(card),
-                 get_num_str(card));
-    }
-    // snprintf(buf, sizeof(buf), "%s%c%s", get_suit_str(card),
-    //          ((card->suit == JOKER) ? '\0' : ':'),
-    //          ((card->suit == JOKER) ? "\0" : get_num_str(card)));
+    snprintf(buf, sizeof(buf), "%s:%s", get_suit_str(card), get_num_str(card));
 
     return buf;
 }

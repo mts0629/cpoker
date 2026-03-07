@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 // Suit
-typedef enum { HEART, DIAMOND, CLUB, SPADE, JOKER, NONE } Suit;
+typedef enum { HEART, DIAMOND, CLUB, SPADE, NONE } Suit;
 
 // Card
 typedef struct Card {
