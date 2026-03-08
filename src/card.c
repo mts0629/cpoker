@@ -48,19 +48,23 @@ void shuffle_deck(uint32_t n) {
 
     uint32_t i = 0;
     while (i < n) {
-        int idx = rand() % NUM_CARDS;
-
         Card *card = top;
+
         // Get idx-th card from the deck
-        for (int j = 0; j < idx; j++) {
+        int idx = rand() % NUM_CARDS;
+        for (int j = 0; j <= idx; j++) {  // 0 to 51
             card = card->next;
         }
 
         // Remove card temporally from the deck
-        card->prev->next = card->next;
-        card->next->prev = card->prev;
+        if (card->prev != NULL) {  // Not the top
+            card->prev->next = card->next;
+        }
+        if (card->next != NULL) {  // Not the last
+            card->next->prev = card->prev;
+        }
 
-        // Move i-th card to the top
+        // Move idx-th card to the top
         card->prev = NULL;
         card->next = top;
         top->prev = card;
