@@ -233,6 +233,124 @@ Card *draw_hand(void) {
     return head;
 }
 
+// Card count
+typedef struct {
+    int suit_count[4];
+    int num_count[14];
+} Count;
+
+Hand check_hand(const Card *hand) {
+    Count count = {
+        .suit_count = {0},
+        .num_count = {0},
+    };
+
+    Card *card = (Card *)hand;
+    uint8_t min_num = UINT8_MAX;
+    uint8_t max_num = 0;
+    while (card != NULL) {
+        count.suit_count[card->suit]++;
+        count.num_count[card->number]++;
+
+        if (card->number < min_num) {
+            min_num = card->number;
+        }
+        if (card->number > max_num) {
+            max_num = card->number;
+        }
+
+        card = card->next;
+    }
+
+    Hand h = NO_PAIR;
+    int count_pairs = 0;
+    int num_series = 1;
+    for (int i = 1; i <= 13; i++) {
+        if (count.num_count[i] == 2) {
+            count_pairs++;
+        } else if (count.num_count[i] == 3) {
+            h = THREE_OF_A_KIND;
+        } else if (count.num_count[i] == 4) {
+            h = FOUR_OF_A_KIND;
+        }
+
+        if ((count.num_count[i - 1] == 1) && (count.num_count[i] == 1)) {
+            num_series++;
+        }
+    }
+
+    if (count_pairs == 1) {
+        if (h == THREE_OF_A_KIND) {
+            h = FULL_HOUSE;
+        } else {
+            h = ONE_PAIR;
+        }
+    } else if (count_pairs == 2) {
+        h = TWO_PAIR;
+    }
+
+    if ((num_series == 5) ||
+        ((num_series == 4) && (min_num == 1) && (max_num == 13))) {
+        h = STRAIGHT;
+    }
+
+    for (int i = 0; i < 4; i++) {
+        if (count.suit_count[i] == 5) {
+            if (h == STRAIGHT) {
+                if ((min_num == 1) && (max_num == 13)) {
+                    h = ROYAL_FLUSH;
+                } else {
+                    h = STRAIGHT_FLUSH;
+                }
+            } else {
+                h = FLUSH;
+            }
+        }
+    }
+
+    return h;
+}
+
+char *get_hand_str(const Hand hand) {
+    switch (hand) {
+        case NO_PAIR:
+            return "No pair";
+            break;
+        case ONE_PAIR:
+            return "One pair";
+            break;
+        case TWO_PAIR:
+            return "Two pair";
+            break;
+            break;
+        case THREE_OF_A_KIND:
+            return "Three of a kind";
+            break;
+        case STRAIGHT:
+            return "Straight";
+            break;
+        case FLUSH:
+            return "Flush";
+            break;
+        case FULL_HOUSE:
+            return "Full house";
+            break;
+        case FOUR_OF_A_KIND:
+            return "Four of a kind";
+            break;
+        case STRAIGHT_FLUSH:
+            return "Straight flush";
+            break;
+        case ROYAL_FLUSH:
+            return "Royal flush";
+            break;
+        default:
+            fprintf(stderr, "Invalid hand\n");
+            return NULL;
+            break;
+    }
+}
+
 void fini_deck(void) {
     for (int i = 0; i < NUM_CARDS; i++) {
         free(card_ptrs[i]);

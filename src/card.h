@@ -14,6 +14,20 @@ typedef struct Card {
     struct Card *next;
 } Card;
 
+// Hands in poker
+typedef enum {
+    NO_PAIR,
+    ONE_PAIR,
+    TWO_PAIR,
+    THREE_OF_A_KIND,
+    STRAIGHT,
+    FLUSH,
+    FULL_HOUSE,
+    FOUR_OF_A_KIND,
+    STRAIGHT_FLUSH,
+    ROYAL_FLUSH
+} Hand;
+
 // Initialize the deck
 void init_deck(void);
 
@@ -31,6 +45,12 @@ Card *draw_from_deck(void);
 
 // Draw a hand (5 cards) from a top of the deck
 Card *draw_hand(void);
+
+// Check a hand
+Hand check_hand(const Card *hand);
+
+// Get a string of hand
+char *get_hand_str(const Hand hand);
 
 // Finalize the deck
 void fini_deck(void);
