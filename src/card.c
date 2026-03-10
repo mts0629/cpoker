@@ -235,22 +235,22 @@ Card *draw_hand(void) {
 
 // Card count
 typedef struct {
-    int suit_count[4];
-    int num_count[14];
+    int suit[4];
+    int number[14];
 } Count;
 
 Hand check_hand(const Card *hand) {
     Count count = {
-        .suit_count = {0},
-        .num_count = {0},
+        .suit = {0},
+        .number = {0},
     };
 
     Card *card = (Card *)hand;
     uint8_t min_num = UINT8_MAX;
     uint8_t max_num = 0;
     while (card != NULL) {
-        count.suit_count[card->suit]++;
-        count.num_count[card->number]++;
+        count.suit[card->suit]++;
+        count.number[card->number]++;
 
         if (card->number < min_num) {
             min_num = card->number;
@@ -262,53 +262,56 @@ Hand check_hand(const Card *hand) {
         card = card->next;
     }
 
-    Hand h = NO_PAIR;
+    Hand type = NO_PAIR;
     int count_pairs = 0;
-    int num_series = 1;
+    int num_seq = 1;
     for (int i = 1; i <= 13; i++) {
-        if (count.num_count[i] == 2) {
+        if (count.number[i] == 2) {
             count_pairs++;
-        } else if (count.num_count[i] == 3) {
-            h = THREE_OF_A_KIND;
-        } else if (count.num_count[i] == 4) {
-            h = FOUR_OF_A_KIND;
+        } else if (count.number[i] == 3) {
+            type = THREE_OF_A_KIND;
+        } else if (count.number[i] == 4) {
+            type = FOUR_OF_A_KIND;
         }
 
-        if ((count.num_count[i - 1] == 1) && (count.num_count[i] == 1)) {
-            num_series++;
+        if ((count.number[i - 1] == 1) && (count.number[i] == 1)) {
+            num_seq++;
         }
     }
 
     if (count_pairs == 1) {
-        if (h == THREE_OF_A_KIND) {
-            h = FULL_HOUSE;
+        if (type == THREE_OF_A_KIND) {
+            type = FULL_HOUSE;
         } else {
-            h = ONE_PAIR;
+            type = ONE_PAIR;
         }
     } else if (count_pairs == 2) {
-        h = TWO_PAIR;
+        type = TWO_PAIR;
     }
 
-    if ((num_series == 5) ||
-        ((num_series == 4) && (min_num == 1) && (max_num == 13))) {
-        h = STRAIGHT;
+    if ((num_seq == 5) || ((count.number[1] == 1) && (count.number[10] == 1) &&
+                           (count.number[11] == 1) && (count.number[12] == 1) &&
+                           (count.number[13] == 1))) {
+        type = STRAIGHT;
     }
 
     for (int i = 0; i < 4; i++) {
-        if (count.suit_count[i] == 5) {
-            if (h == STRAIGHT) {
-                if ((min_num == 1) && (max_num == 13)) {
-                    h = ROYAL_FLUSH;
+        if (count.suit[i] == 5) {
+            if (type == STRAIGHT) {
+                if ((count.number[1] == 1) && (count.number[10] == 1) &&
+                    (count.number[11] == 1) && (count.number[12] == 1) &&
+                    (count.number[13] == 1)) {
+                    type = ROYAL_FLUSH;
                 } else {
-                    h = STRAIGHT_FLUSH;
+                    type = STRAIGHT_FLUSH;
                 }
             } else {
-                h = FLUSH;
+                type = FLUSH;
             }
         }
     }
 
-    return h;
+    return type;
 }
 
 char *get_hand_str(const Hand hand) {
