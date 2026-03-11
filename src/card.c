@@ -314,7 +314,7 @@ Hand check_hand(const Card *hand) {
     return type;
 }
 
-char *get_hand_str(const Hand hand) {
+static char *get_hand_str(const Hand hand) {
     switch (hand) {
         case NO_PAIR:
             return "No pair";
@@ -352,6 +352,10 @@ char *get_hand_str(const Hand hand) {
             return NULL;
             break;
     }
+}
+
+void print_hand(const Card *hand) {
+    printf("%s\n", get_hand_str(check_hand(hand)));
 }
 
 void fini_deck(void) {

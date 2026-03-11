@@ -49,8 +49,8 @@ Card *draw_hand(void);
 // Check a hand
 Hand check_hand(const Card *hand);
 
-// Get a string of hand
-char *get_hand_str(const Hand hand);
+// Print a hand
+void print_hand(const Card *hand);
 
 // Finalize the deck
 void fini_deck(void);

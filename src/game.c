@@ -12,7 +12,7 @@ int main(void) {
     hand = sort_cards(hand);
     print_cards(hand);
 
-    printf("%s\n", get_hand_str(check_hand(hand)));
+    print_hand(hand);
 
     fini_deck();
 
