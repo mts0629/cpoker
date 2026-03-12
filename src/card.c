@@ -239,7 +239,7 @@ typedef struct {
     int number[14];
 } Count;
 
-Hand check_hand(const Card *hand) {
+static Hand check_hand(const Card *hand, uint8_t *rank) {
     Count count = {
         .suit = {0},
         .number = {0},
@@ -265,13 +265,18 @@ Hand check_hand(const Card *hand) {
     Hand type = NO_PAIR;
     int count_pairs = 0;
     int num_seq = 1;
-    for (int i = 1; i <= 13; i++) {
+    for (uint8_t i = 1; i <= 13; i++) {
         if (count.number[i] == 2) {
             count_pairs++;
+            if (i > *rank) {
+                *rank = i;
+            }
         } else if (count.number[i] == 3) {
             type = THREE_OF_A_KIND;
+            *rank = i;
         } else if (count.number[i] == 4) {
             type = FOUR_OF_A_KIND;
+            *rank = i;
         }
 
         if ((count.number[i - 1] == 1) && (count.number[i] == 1)) {
@@ -293,6 +298,7 @@ Hand check_hand(const Card *hand) {
                            (count.number[11] == 1) && (count.number[12] == 1) &&
                            (count.number[13] == 1))) {
         type = STRAIGHT;
+        *rank = max_num;
     }
 
     for (int i = 0; i < 4; i++) {
@@ -302,11 +308,14 @@ Hand check_hand(const Card *hand) {
                     (count.number[11] == 1) && (count.number[12] == 1) &&
                     (count.number[13] == 1)) {
                     type = ROYAL_FLUSH;
+                    *rank = 14;
                 } else {
                     type = STRAIGHT_FLUSH;
+                    *rank = max_num;
                 }
             } else {
                 type = FLUSH;
+                *rank = max_num;
             }
         }
     }
@@ -355,7 +364,14 @@ static char *get_hand_str(const Hand hand) {
 }
 
 void print_hand(const Card *hand) {
-    printf("%s\n", get_hand_str(check_hand(hand)));
+    uint8_t rank = 0;
+    Hand type = check_hand(hand, &rank);
+
+    printf("%s", get_hand_str(type));
+    if ((type != NO_PAIR) || (type != ROYAL_FLUSH)) {
+        printf(" (rank: %u)", rank);
+    }
+    printf("\n");
 }
 
 void fini_deck(void) {

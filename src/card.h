@@ -46,9 +46,6 @@ Card *draw_from_deck(void);
 // Draw a hand (5 cards) from a top of the deck
 Card *draw_hand(void);
 
-// Check a hand
-Hand check_hand(const Card *hand);
-
 // Print a hand
 void print_hand(const Card *hand);
 
