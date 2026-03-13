@@ -263,20 +263,23 @@ static Hand check_hand(const Card *hand, uint8_t *rank) {
     }
 
     Hand type = NO_PAIR;
+    uint8_t *p_rank = rank;
     int count_pairs = 0;
     int num_seq = 1;
     for (uint8_t i = 1; i <= 13; i++) {
         if (count.number[i] == 2) {
             count_pairs++;
-            if (i > *rank) {
-                *rank = i;
+            if (i > *p_rank) {
+                *p_rank = i;
             }
+            p_rank++;
         } else if (count.number[i] == 3) {
             type = THREE_OF_A_KIND;
-            *rank = i;
+            *p_rank = i;
+            p_rank++;
         } else if (count.number[i] == 4) {
             type = FOUR_OF_A_KIND;
-            *rank = i;
+            *p_rank = i;
         }
 
         if ((count.number[i - 1] == 1) && (count.number[i] == 1)) {
@@ -298,7 +301,7 @@ static Hand check_hand(const Card *hand, uint8_t *rank) {
                            (count.number[11] == 1) && (count.number[12] == 1) &&
                            (count.number[13] == 1))) {
         type = STRAIGHT;
-        *rank = max_num;
+        *p_rank = max_num;
     }
 
     for (int i = 0; i < 4; i++) {
@@ -308,14 +311,14 @@ static Hand check_hand(const Card *hand, uint8_t *rank) {
                     (count.number[11] == 1) && (count.number[12] == 1) &&
                     (count.number[13] == 1)) {
                     type = ROYAL_FLUSH;
-                    *rank = 14;
+                    *p_rank = 14;
                 } else {
                     type = STRAIGHT_FLUSH;
-                    *rank = max_num;
+                    *p_rank = max_num;
                 }
             } else {
                 type = FLUSH;
-                *rank = max_num;
+                *p_rank = max_num;
             }
         }
     }
@@ -364,12 +367,23 @@ static char *get_hand_str(const Hand hand) {
 }
 
 void print_hand(const Card *hand) {
-    uint8_t rank = 0;
-    Hand type = check_hand(hand, &rank);
+    uint8_t rank[5] = {0};
+    Hand type = check_hand(hand, rank);
 
     printf("%s", get_hand_str(type));
     if ((type != NO_PAIR) || (type != ROYAL_FLUSH)) {
-        printf(" (rank: %u)", rank);
+        uint8_t *p_rank = rank;
+        printf(" (rank: ");
+        while (1) {
+            printf("%u", *p_rank);
+            p_rank++;
+            if (*p_rank != 0) {
+                printf(",");
+            } else {
+                break;
+            }
+        }
+        printf(")");
     }
     printf("\n");
 }
