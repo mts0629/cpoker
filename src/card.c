@@ -269,17 +269,15 @@ static Hand check_hand(const Card *hand, uint8_t *rank) {
     for (uint8_t i = 1; i <= 13; i++) {
         if (count.number[i] == 2) {
             count_pairs++;
-            if (i > *p_rank) {
-                *p_rank = i;
-            }
+            *p_rank = (i == 1) ? 14 : i;
             p_rank++;
         } else if (count.number[i] == 3) {
             type = THREE_OF_A_KIND;
-            *p_rank = i;
+            *p_rank = (i == 1) ? 14 : i;
             p_rank++;
         } else if (count.number[i] == 4) {
             type = FOUR_OF_A_KIND;
-            *p_rank = i;
+            *p_rank = (i == 1) ? 14 : i;
         }
 
         if ((count.number[i - 1] == 1) && (count.number[i] == 1)) {
@@ -301,7 +299,11 @@ static Hand check_hand(const Card *hand, uint8_t *rank) {
                            (count.number[11] == 1) && (count.number[12] == 1) &&
                            (count.number[13] == 1))) {
         type = STRAIGHT;
-        *p_rank = max_num;
+        if ((min_num == 1) && (max_num == 13)) {
+            *p_rank = 14;
+        } else {
+            *p_rank = max_num;
+        }
     }
 
     for (int i = 0; i < 4; i++) {
@@ -318,7 +320,7 @@ static Hand check_hand(const Card *hand, uint8_t *rank) {
                 }
             } else {
                 type = FLUSH;
-                *p_rank = max_num;
+                *p_rank = (min_num == 1) ? 14 : max_num;
             }
         }
     }
@@ -371,12 +373,29 @@ void print_hand(const Card *hand) {
     Hand type = check_hand(hand, rank);
 
     printf("%s", get_hand_str(type));
-    if ((type != NO_PAIR) || (type != ROYAL_FLUSH)) {
+    if (type != NO_PAIR) {
         uint8_t *p_rank = rank;
         printf(" (rank: ");
         while (1) {
-            printf("%u", *p_rank);
+            switch (*p_rank) {
+                case 14:
+                    printf("A");
+                    break;
+                case 13:
+                    printf("K");
+                    break;
+                case 12:
+                    printf("Q");
+                    break;
+                case 11:
+                    printf("J");
+                    break;
+                default:
+                    printf("%u", *p_rank);
+                    break;
+            }
             p_rank++;
+
             if (*p_rank != 0) {
                 printf(",");
             } else {
