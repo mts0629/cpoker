@@ -28,6 +28,12 @@ typedef enum {
     ROYAL_FLUSH
 } Hand;
 
+// Status of hand
+typedef struct {
+    Hand hand;
+    uint8_t rank[2];
+} Status;
+
 // Initialize the deck
 void init_deck(void);
 
@@ -36,6 +42,9 @@ void shuffle_deck(const uint32_t n);
 
 // Sort cards
 Card *sort_cards(Card *cards);
+
+// Get status
+void get_status(Status *status, const Card *hand);
 
 // Print cards
 void print_cards(Card *hand);
@@ -46,8 +55,8 @@ Card *draw_from_deck(void);
 // Draw a hand (5 cards) from a top of the deck
 Card *draw_hand(void);
 
-// Print a hand
-void print_hand(const Card *hand);
+// Print status
+void print_status(const Status *status);
 
 // Finalize the deck
 void fini_deck(void);

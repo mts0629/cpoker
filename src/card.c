@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 // Top of a deck
@@ -233,24 +234,31 @@ Card *draw_hand(void) {
     return head;
 }
 
-// Card count
-typedef struct {
-    int suit[4];
-    int number[14];
-} Count;
+// Comparison function for sorting by descending order
+static int cmp_descend(const void *e1, const void *e2) {
+    const uint8_t *u1 = (const uint8_t *)e1;
+    const uint8_t *u2 = (const uint8_t *)e2;
 
-static Hand check_hand(const Card *hand, uint8_t *rank) {
-    Count count = {
-        .suit = {0},
-        .number = {0},
-    };
+    if (u1 < u2) {
+        return -1;
+    } else if (u1 > u2) {
+        return 1;
+    }
+    return 0;
+}
 
-    Card *card = (Card *)hand;
+void get_status(Status *status, const Card *hand) {
+    int count_suit[4] = {0};
+    int count_number[14] = {0};
+
+    memset(status->rank, 0, 2);
+
+    const Card *card = hand;
     uint8_t min_num = UINT8_MAX;
     uint8_t max_num = 0;
     while (card != NULL) {
-        count.suit[card->suit]++;
-        count.number[card->number]++;
+        count_suit[card->suit]++;
+        count_number[card->number]++;
 
         if (card->number < min_num) {
             min_num = card->number;
@@ -262,43 +270,43 @@ static Hand check_hand(const Card *hand, uint8_t *rank) {
         card = card->next;
     }
 
-    Hand type = NO_PAIR;
-    uint8_t *p_rank = rank;
+    status->hand = NO_PAIR;
+    uint8_t *p_rank = status->rank;
     int count_pairs = 0;
     int num_seq = 1;
     for (uint8_t i = 1; i <= 13; i++) {
-        if (count.number[i] == 2) {
+        if (count_number[i] == 2) {
             count_pairs++;
             *p_rank = (i == 1) ? 14 : i;
             p_rank++;
-        } else if (count.number[i] == 3) {
-            type = THREE_OF_A_KIND;
+        } else if (count_number[i] == 3) {
+            status->hand = THREE_OF_A_KIND;
             *p_rank = (i == 1) ? 14 : i;
             p_rank++;
-        } else if (count.number[i] == 4) {
-            type = FOUR_OF_A_KIND;
+        } else if (count_number[i] == 4) {
+            status->hand = FOUR_OF_A_KIND;
             *p_rank = (i == 1) ? 14 : i;
         }
 
-        if ((count.number[i - 1] == 1) && (count.number[i] == 1)) {
+        if ((count_number[i - 1] == 1) && (count_number[i] == 1)) {
             num_seq++;
         }
     }
 
     if (count_pairs == 1) {
-        if (type == THREE_OF_A_KIND) {
-            type = FULL_HOUSE;
+        if (status->hand == THREE_OF_A_KIND) {
+            status->hand = FULL_HOUSE;
         } else {
-            type = ONE_PAIR;
+            status->hand = ONE_PAIR;
         }
     } else if (count_pairs == 2) {
-        type = TWO_PAIR;
+        status->hand = TWO_PAIR;
     }
 
-    if ((num_seq == 5) || ((count.number[1] == 1) && (count.number[10] == 1) &&
-                           (count.number[11] == 1) && (count.number[12] == 1) &&
-                           (count.number[13] == 1))) {
-        type = STRAIGHT;
+    if ((num_seq == 5) || ((count_number[1] == 1) && (count_number[10] == 1) &&
+                           (count_number[11] == 1) && (count_number[12] == 1) &&
+                           (count_number[13] == 1))) {
+        status->hand = STRAIGHT;
         if ((min_num == 1) && (max_num == 13)) {
             *p_rank = 14;
         } else {
@@ -307,25 +315,27 @@ static Hand check_hand(const Card *hand, uint8_t *rank) {
     }
 
     for (int i = 0; i < 4; i++) {
-        if (count.suit[i] == 5) {
-            if (type == STRAIGHT) {
-                if ((count.number[1] == 1) && (count.number[10] == 1) &&
-                    (count.number[11] == 1) && (count.number[12] == 1) &&
-                    (count.number[13] == 1)) {
-                    type = ROYAL_FLUSH;
+        if (count_suit[i] == 5) {
+            if (status->hand == STRAIGHT) {
+                if ((count_number[1] == 1) && (count_number[10] == 1) &&
+                    (count_number[11] == 1) && (count_number[12] == 1) &&
+                    (count_number[13] == 1)) {
+                    status->hand = ROYAL_FLUSH;
                     *p_rank = 14;
                 } else {
-                    type = STRAIGHT_FLUSH;
+                    status->hand = STRAIGHT_FLUSH;
                     *p_rank = max_num;
                 }
             } else {
-                type = FLUSH;
+                status->hand = FLUSH;
                 *p_rank = (min_num == 1) ? 14 : max_num;
             }
         }
     }
 
-    return type;
+    if (status->hand == TWO_PAIR) {
+        qsort(status->rank, 2, 1, cmp_descend);
+    }
 }
 
 static char *get_hand_str(const Hand hand) {
@@ -338,7 +348,6 @@ static char *get_hand_str(const Hand hand) {
             break;
         case TWO_PAIR:
             return "Two pair";
-            break;
             break;
         case THREE_OF_A_KIND:
             return "Three of a kind";
@@ -368,13 +377,10 @@ static char *get_hand_str(const Hand hand) {
     }
 }
 
-void print_hand(const Card *hand) {
-    uint8_t rank[5] = {0};
-    Hand type = check_hand(hand, rank);
-
-    printf("%s", get_hand_str(type));
-    if (type != NO_PAIR) {
-        uint8_t *p_rank = rank;
+void print_status(const Status *status) {
+    printf("%s", get_hand_str(status->hand));
+    if (status->hand != NO_PAIR) {
+        const uint8_t *p_rank = status->rank;
         printf(" (rank: ");
         while (1) {
             switch (*p_rank) {

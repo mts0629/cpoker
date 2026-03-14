@@ -8,11 +8,13 @@ int main(void) {
     shuffle_deck(100);
 
     Card *hand = draw_hand();
-
     hand = sort_cards(hand);
-    print_cards(hand);
 
-    print_hand(hand);
+    Status status;
+    get_status(&status, hand);
+
+    print_cards(hand);
+    print_status(&status);
 
     fini_deck();
 
