@@ -252,6 +252,7 @@ void get_status(Status *status, const Card *hand) {
     int count_number[14] = {0};
 
     memset(status->rank, 0, 2);
+    memset(status->kicker, 0, 5);
 
     const Card *card = hand;
     uint8_t min_num = UINT8_MAX;
@@ -333,6 +334,22 @@ void get_status(Status *status, const Card *hand) {
         }
     }
 
+    if ((status->hand == ONE_PAIR) || (status->hand == TWO_PAIR) ||
+        (status->hand == THREE_OF_A_KIND) || (status->hand == FULL_HOUSE) ||
+        (status->hand == FOUR_OF_A_KIND)) {
+        uint8_t *p_kicker = status->kicker;
+        uint8_t n_kicker = 0;
+        for (uint8_t i = 1; i <= 13; i++) {
+            if (count_number[i] == 1) {
+                *p_kicker = (i == 1) ? 14 : i;
+                p_kicker++;
+                n_kicker++;
+            }
+        }
+
+        qsort(status->kicker, n_kicker, 1, cmp_descend);
+    }
+
     if (status->hand == TWO_PAIR) {
         qsort(status->rank, 2, 1, cmp_descend);
     }
@@ -403,6 +420,36 @@ void print_status(const Status *status) {
             p_rank++;
 
             if (*p_rank != 0) {
+                printf(",");
+            } else {
+                break;
+            }
+        }
+        printf(")");
+
+        const uint8_t *p_kicker = status->kicker;
+        printf(" (kicker: ");
+        while (1) {
+            switch (*p_kicker) {
+                case 14:
+                    printf("A");
+                    break;
+                case 13:
+                    printf("K");
+                    break;
+                case 12:
+                    printf("Q");
+                    break;
+                case 11:
+                    printf("J");
+                    break;
+                default:
+                    printf("%u", *p_kicker);
+                    break;
+            }
+            p_kicker++;
+
+            if (*p_kicker != 0) {
                 printf(",");
             } else {
                 break;
