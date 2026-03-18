@@ -252,7 +252,7 @@ void get_status(Status *status, const Card *hand) {
     int count_number[14] = {0};
 
     memset(status->rank, 0, 2);
-    memset(status->kicker, 0, 5);
+    memset(status->kicker, 0, 6);
 
     const Card *card = hand;
     uint8_t min_num = UINT8_MAX;
@@ -334,9 +334,8 @@ void get_status(Status *status, const Card *hand) {
         }
     }
 
-    if ((status->hand == ONE_PAIR) || (status->hand == TWO_PAIR) ||
-        (status->hand == THREE_OF_A_KIND) || (status->hand == FULL_HOUSE) ||
-        (status->hand == FOUR_OF_A_KIND)) {
+    if ((status->hand != STRAIGHT) && (status->hand != FLUSH) &&
+        (status->hand != STRAIGHT_FLUSH) && (status->hand != ROYAL_FLUSH)) {
         uint8_t *p_kicker = status->kicker;
         uint8_t n_kicker = 0;
         for (uint8_t i = 1; i <= 13; i++) {
@@ -426,7 +425,10 @@ void print_status(const Status *status) {
             }
         }
         printf(")");
+    }
 
+    if ((status->hand != STRAIGHT) && (status->hand != FLUSH) &&
+        (status->hand != STRAIGHT_FLUSH) && (status->hand != ROYAL_FLUSH)) {
         const uint8_t *p_kicker = status->kicker;
         printf(" (kicker: ");
         while (1) {

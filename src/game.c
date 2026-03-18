@@ -3,6 +3,7 @@
 #include "card.h"
 
 void judge(const Status *player, const Status *com) {
+    // Compare hand
     if (player->hand > com->hand) {
         printf("You win!\n");
         return;
@@ -10,6 +11,7 @@ void judge(const Status *player, const Status *com) {
         printf("You lose...\n");
         return;
     } else {
+        // Compare rank
         if (player->rank[0] > com->rank[0]) {
             printf("You win!\n");
             return;
@@ -17,6 +19,7 @@ void judge(const Status *player, const Status *com) {
             printf("You lose...\n");
             return;
         } else {
+            // Compare 2nd rank
             if (player->hand == TWO_PAIR) {
                 if (player->rank[1] > com->rank[1]) {
                     printf("You win!\n");
@@ -25,18 +28,19 @@ void judge(const Status *player, const Status *com) {
                     printf("You lose...\n");
                     return;
                 }
-            } else {
-                int i = 0;
-                while (player->kicker[i] != 0) {
-                    if (player->kicker[i] > com->kicker[i]) {
-                        printf("You win!\n");
-                        return;
-                    } else if (player->kicker[i] < com->kicker[i]) {
-                        printf("You lose...\n");
-                        return;
-                    }
-                    i++;
+            }
+
+            // Compare kickers
+            int i = 0;
+            while (player->kicker[i] != 0) {
+                if (player->kicker[i] > com->kicker[i]) {
+                    printf("You win!\n");
+                    return;
+                } else if (player->kicker[i] < com->kicker[i]) {
+                    printf("You lose...\n");
+                    return;
                 }
+                i++;
             }
         }
 

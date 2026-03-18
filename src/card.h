@@ -32,7 +32,7 @@ typedef enum {
 typedef struct {
     Hand hand;
     uint8_t rank[2];
-    uint8_t kicker[5];
+    uint8_t kicker[6];
 } Status;
 
 // Initialize the deck
