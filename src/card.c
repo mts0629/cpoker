@@ -132,16 +132,16 @@ Card *sort_cards(Card *cards) {
 static char *get_suit_str(const Card *card) {
     switch (card->suit) {
         case HEART:
-            return "H";
+            return "♥";
             break;
         case DIAMOND:
-            return "D";
+            return "♦";
             break;
         case CLUB:
-            return "C";
+            return "♣";
             break;
         case SPADE:
-            return "S";
+            return "♠";
             break;
         default:
             fprintf(stderr, "Invalid suit\n");
@@ -178,14 +178,16 @@ static char *get_num_str(const Card *card) {
 }
 
 static char *get_card_str(const Card *card) {
-    static char buf[5];
-    snprintf(buf, sizeof(buf), "%s:%s", get_suit_str(card), get_num_str(card));
+    static char buf[16];
+    snprintf(buf, sizeof(buf), "|%s%2s|", get_suit_str(card),
+             get_num_str(card));
 
     return buf;
 }
 
 void print_cards(Card *hand) {
     Card *cur = hand;
+    printf("┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐\n");
     while (1) {
         printf("%s", get_card_str(cur));
         if (cur->next == NULL) {
@@ -195,7 +197,7 @@ void print_cards(Card *hand) {
         printf(" ");
         cur = cur->next;
     }
-    printf("\n");
+    printf("\n└───┘ └───┘ └───┘ └───┘ └───┘\n");
 }
 
 Card *draw_from_deck(void) {
