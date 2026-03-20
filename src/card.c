@@ -242,9 +242,9 @@ static int cmp_descend(const void *e1, const void *e2) {
     const uint8_t *u2 = (const uint8_t *)e2;
 
     if (u1 < u2) {
-        return -1;
-    } else if (u1 > u2) {
         return 1;
+    } else if (u1 > u2) {
+        return -1;
     }
     return 0;
 }
