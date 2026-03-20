@@ -253,8 +253,8 @@ void get_status(Status *status, const Card *hand) {
     int count_suit[4] = {0};
     int count_number[14] = {0};
 
-    memset(status->rank, 0, 2);
-    memset(status->kicker, 0, 6);
+    memset(status->rank, 0, sizeof(status->rank));
+    memset(status->kicker, 0, sizeof(status->kicker));
 
     const Card *card = hand;
     uint8_t min_num = UINT8_MAX;

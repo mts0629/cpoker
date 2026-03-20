@@ -31,8 +31,8 @@ typedef enum {
 // Status of hand
 typedef struct {
     Hand hand;
-    uint8_t rank[2];
-    uint8_t kicker[6];
+    uint8_t rank[3];    // Two pair + sentinel
+    uint8_t kicker[6];  // No pair + sentinel
 } Status;
 
 // Initialize the deck
