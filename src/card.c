@@ -397,9 +397,10 @@ static char *get_hand_str(const Hand hand) {
 
 void print_status(const Status *status) {
     printf("%s", get_hand_str(status->hand));
+
     if (status->hand != NO_PAIR) {
         const uint8_t *p_rank = status->rank;
-        printf(" (rank: ");
+        printf(" / rank: ");
         while (1) {
             switch (*p_rank) {
                 case 14:
@@ -426,13 +427,12 @@ void print_status(const Status *status) {
                 break;
             }
         }
-        printf(")");
     }
 
     if ((status->hand != STRAIGHT) && (status->hand != FLUSH) &&
         (status->hand != STRAIGHT_FLUSH) && (status->hand != ROYAL_FLUSH)) {
         const uint8_t *p_kicker = status->kicker;
-        printf(" (kicker: ");
+        printf(" / kicker: ");
         while (1) {
             switch (*p_kicker) {
                 case 14:
@@ -459,7 +459,6 @@ void print_status(const Status *status) {
                 break;
             }
         }
-        printf(")");
     }
     printf("\n");
 }

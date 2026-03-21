@@ -62,17 +62,17 @@ int main(void) {
     Status player_status;
     get_status(&player_status, player_hand);
 
-    printf("----- Your card -----\n");
+    printf("--------- Your card ---------\n");
     print_cards(player_hand);
     print_status(&player_status);
 
     Status com_status;
     get_status(&com_status, com_hand);
 
-    printf("----- COM card ------\n");
+    printf("---------- COM card ---------\n");
     print_cards(com_hand);
     print_status(&com_status);
-    printf("---------------------\n");
+    printf("-----------------------------\n");
 
     judge(&player_status, &com_status);
 
