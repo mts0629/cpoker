@@ -1,6 +1,58 @@
+#include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "card.h"
+
+void parse_input(int *indices, const char *input) {
+    int i = 0;
+    for (i = 0; i < 5; i++) {
+        indices[i] = -1;
+    }
+
+    const char *p = input;
+    i = 0;
+    char buf[2] = {0};
+    while (*p != '\0') {
+        if (isdigit(*p)) {
+            buf[0] = *p;
+
+            int d = strtol(buf, NULL, 10);
+            indices[i] = d;
+            i++;
+        }
+
+        if (i == 5) {
+            break;
+        }
+
+        p++;
+    }
+}
+
+void change_cards(Card *player_hand, int *indices) {
+    int i = 0;
+    while (indices[i] != -1) {
+        Card *new = draw_from_deck();
+
+        Card *old = player_hand;
+        for (int j = 0; j < indices[i]; j++) {
+            old = old->next;
+        }
+
+        if (old->prev != NULL) {
+            old->prev->next = new;
+        }
+        new->prev = old->prev;
+
+        if (old->next != NULL) {
+            old->next->prev = new;
+        }
+        new->next = old->next;
+
+        i++;
+    }
+}
 
 void judge(const Status *player, const Status *com) {
     // Compare hand
@@ -68,6 +120,23 @@ int main(void) {
 
     Status com_status;
     get_status(&com_status, com_hand);
+
+    printf("Change indices: ");
+    char input[32];
+    fgets(input, sizeof(input), stdin);
+    int indices[5];
+    parse_input(indices, input);
+
+    change_cards(player_hand, indices);
+    sort_cards(player_hand);
+
+    get_status(&player_status, player_hand);
+
+    printf("Showdown\n");
+
+    printf("--------- Your card ---------\n");
+    print_cards(player_hand);
+    print_status(&player_status);
 
     printf("---------- COM card ---------\n");
     print_cards(com_hand);
