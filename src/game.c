@@ -30,12 +30,14 @@ void parse_input(int *indices, const char *input) {
     }
 }
 
-void change_cards(Card *player_hand, int *indices) {
+Card *change_cards(Card *player_hand, const int *indices) {
+    Card *head = player_hand;
+
     int i = 0;
     while (indices[i] != -1) {
         Card *new = draw_from_deck();
 
-        Card *old = player_hand;
+        Card *old = head;
         for (int j = 0; j < indices[i]; j++) {
             old = old->next;
         }
@@ -50,8 +52,15 @@ void change_cards(Card *player_hand, int *indices) {
         }
         new->next = old->next;
 
+        head = new;
+        while (head->prev != NULL) {
+            head = head->prev;
+        }
+
         i++;
     }
+
+    return head;
 }
 
 void judge(const Status *player, const Status *com) {
@@ -121,13 +130,13 @@ int main(void) {
     Status com_status;
     get_status(&com_status, com_hand);
 
-    printf("Change indices: ");
+    printf("Change indices (0-4): ");
     char input[32];
     fgets(input, sizeof(input), stdin);
-    int indices[5];
+    int indices[6];
     parse_input(indices, input);
 
-    change_cards(player_hand, indices);
+    player_hand = change_cards(player_hand, indices);
     sort_cards(player_hand);
 
     get_status(&player_status, player_hand);
