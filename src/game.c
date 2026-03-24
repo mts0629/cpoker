@@ -18,8 +18,12 @@ void parse_input(int *indices, const char *input) {
             buf[0] = *p;
 
             int d = strtol(buf, NULL, 10);
-            indices[i] = d;
-            i++;
+            if ((d < 0) || (d > 4)) {
+                fprintf(stderr, "Error index: %d\n", d);
+            } else {
+                indices[i] = d;
+                i++;
+            }
         }
 
         if (i == 5) {
