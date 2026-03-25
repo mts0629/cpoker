@@ -141,7 +141,7 @@ int main(void) {
     parse_input(indices, input);
 
     player_hand = change_cards(player_hand, indices);
-    sort_cards(player_hand);
+    player_hand = sort_cards(player_hand);
 
     get_status(&player_status, player_hand);
 
