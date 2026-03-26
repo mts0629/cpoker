@@ -4,14 +4,17 @@
 
 #include "card.h"
 
-void parse_input(int *indices, const char *input) {
-    int i = 0;
-    for (i = 0; i < 5; i++) {
+int *parse_input(void) {
+    char input[32];
+    fgets(input, sizeof(input), stdin);
+
+    static int indices[6] = {0};
+    for (int i = 0; i < 6; i++) {
         indices[i] = -1;
     }
 
     const char *p = input;
-    i = 0;
+    int i = 0;
     char buf[2] = {0};
     while (*p != '\0') {
         if (isdigit(*p)) {
@@ -32,6 +35,8 @@ void parse_input(int *indices, const char *input) {
 
         p++;
     }
+
+    return indices;
 }
 
 Card *change_cards(Card *player_hand, const int *indices) {
@@ -135,10 +140,7 @@ int main(void) {
     get_status(&com_status, com_hand);
 
     printf("Change indices (0-4): ");
-    char input[32];
-    fgets(input, sizeof(input), stdin);
-    int indices[6];
-    parse_input(indices, input);
+    int *indices = parse_input();
 
     player_hand = change_cards(player_hand, indices);
     player_hand = sort_cards(player_hand);
