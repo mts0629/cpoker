@@ -121,6 +121,8 @@ void judge(const Status *player, const Status *com) {
 int main(void) {
     init_deck();
 
+    reset_deck();
+
     shuffle_deck(100);
 
     Card *player_hand = draw_hand();

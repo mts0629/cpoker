@@ -40,6 +40,27 @@ void init_deck(void) {
     }
 }
 
+void reset_deck(void) {
+    for (int i = 0; i < NUM_CARDS; i++) {
+        Card *p = card_ptrs[i];
+        if (i == 0) {
+            p->prev = NULL;
+        } else {
+            p->prev = card_ptrs[i - 1];
+        }
+
+        if (i == (NUM_CARDS - 1)) {
+            p->next = NULL;
+        } else {
+            p->next = card_ptrs[i + 1];
+        }
+
+        if (i == 0) {
+            top = p;
+        }
+    }
+}
+
 void shuffle_deck(uint32_t n) {
     if (top == NULL) {
         return;

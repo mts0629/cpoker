@@ -38,6 +38,9 @@ typedef struct {
 // Initialize the deck
 void init_deck(void);
 
+// Reset the deck
+void reset_deck(void);
+
 // Shuffle cards in a deck n times
 void shuffle_deck(const uint32_t n);
 
