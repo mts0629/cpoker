@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -121,46 +122,68 @@ void judge(const Status *player, const Status *com) {
 int main(void) {
     init_deck();
 
-    reset_deck();
+    bool playing = true;
+    while (playing) {
+        reset_deck();
 
-    shuffle_deck(100);
+        shuffle_deck(100);
 
-    Card *player_hand = draw_hand();
-    player_hand = sort_cards(player_hand);
+        Card *player_hand = draw_hand();
+        player_hand = sort_cards(player_hand);
 
-    Card *com_hand = draw_hand();
-    com_hand = sort_cards(com_hand);
+        Card *com_hand = draw_hand();
+        com_hand = sort_cards(com_hand);
 
-    Status player_status;
-    get_status(&player_status, player_hand);
+        Status player_status;
+        get_status(&player_status, player_hand);
 
-    printf("--------- Your card ---------\n");
-    print_cards(player_hand);
-    print_status(&player_status);
+        printf("--------- Your card ---------\n");
+        print_cards(player_hand);
+        print_status(&player_status);
 
-    Status com_status;
-    get_status(&com_status, com_hand);
+        Status com_status;
+        get_status(&com_status, com_hand);
 
-    printf("Change indices (0-4): ");
-    int *indices = parse_input();
+        printf("Change indices (0-4): ");
+        int *indices = parse_input();
 
-    player_hand = change_cards(player_hand, indices);
-    player_hand = sort_cards(player_hand);
+        player_hand = change_cards(player_hand, indices);
+        player_hand = sort_cards(player_hand);
 
-    get_status(&player_status, player_hand);
+        get_status(&player_status, player_hand);
 
-    printf("Showdown\n");
+        printf("Showdown\n");
 
-    printf("--------- Your card ---------\n");
-    print_cards(player_hand);
-    print_status(&player_status);
+        printf("--------- Your card ---------\n");
+        print_cards(player_hand);
+        print_status(&player_status);
 
-    printf("---------- COM card ---------\n");
-    print_cards(com_hand);
-    print_status(&com_status);
-    printf("-----------------------------\n");
+        printf("---------- COM card ---------\n");
+        print_cards(com_hand);
+        print_status(&com_status);
+        printf("-----------------------------\n");
 
-    judge(&player_status, &com_status);
+        judge(&player_status, &com_status);
+
+        printf("Play again? (y/n): ");
+        char input[2];
+        while (1) {
+            fgets(input, sizeof(input), stdin);
+
+            if ((input[0] == 'y') || (input[0] == 'Y')) {
+                playing = true;
+                break;
+            } else if ((input[0] == 'n') || (input[0] == 'N')) {
+                playing = false;
+                break;
+            }
+
+            printf("y/Y or n/N: ");
+        }
+
+        while (getchar() != '\n')
+            ;  // Skip remaining chars
+    }
 
     fini_deck();
 
