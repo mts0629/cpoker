@@ -40,6 +40,28 @@ int *parse_input(void) {
     return indices;
 }
 
+int *com_think(void) {
+    static int indices[6] = {0};
+    for (int i = 0; i < 6; i++) {
+        indices[i] = -1;
+    }
+
+    // Just change random indices
+    int ns[] = {0, 1, 2, 3, 4, -1};
+    for (int i = 0; i < 5; i++) {
+        int n = rand() % 6;
+        if (ns[n] == -1) {
+            break;
+        }
+
+        indices[i] = ns[n];
+
+        ns[n] = -1;
+    }
+
+    return indices;
+}
+
 Card *change_cards(Card *player_hand, const int *indices) {
     Card *head = player_hand;
 
@@ -151,6 +173,16 @@ int main(void) {
         player_hand = sort_cards(player_hand);
 
         get_status(&player_status, player_hand);
+
+        indices = com_think();
+        com_hand = change_cards(com_hand, indices);
+        com_hand = sort_cards(com_hand);
+
+        int i = 0;
+        while (indices[i] != -1) {
+            i++;
+        }
+        printf("> COM changed %d cards\n", i);
 
         printf("Showdown\n");
 
