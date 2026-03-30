@@ -97,48 +97,44 @@ Card *change_cards(Card *player_hand, const int *indices) {
 
 void judge(const Status *player, const Status *com) {
     // Compare hand
+    printf("=============================\n");
     if (player->hand > com->hand) {
-        printf("You win!\n");
-        return;
+        printf("          You win!\n");
     } else if (player->hand < com->hand) {
-        printf("You lose...\n");
-        return;
+        printf("         You lose...\n");
     } else {
         // Compare rank
         if (player->rank[0] > com->rank[0]) {
-            printf("You win!\n");
-            return;
+            printf("          You win!\n");
         } else if (player->rank[0] < com->rank[0]) {
-            printf("You lose...\n");
-            return;
-        } else {
+            printf("         You lose...\n");
+        } else if (player->hand == TWO_PAIR) {
             // Compare 2nd rank
-            if (player->hand == TWO_PAIR) {
-                if (player->rank[1] > com->rank[1]) {
-                    printf("You win!\n");
-                    return;
-                } else if (player->rank[1] < com->rank[1]) {
-                    printf("You lose...\n");
-                    return;
-                }
+            if (player->rank[1] > com->rank[1]) {
+                printf("          You win!\n");
+            } else if (player->rank[1] < com->rank[1]) {
+                printf("         You lose...\n");
             }
-
+        } else {
             // Compare kickers
             int i = 0;
             while (player->kicker[i] != 0) {
                 if (player->kicker[i] > com->kicker[i]) {
-                    printf("You win!\n");
-                    return;
+                    printf("          You win!\n");
+                    break;
                 } else if (player->kicker[i] < com->kicker[i]) {
-                    printf("You lose...\n");
-                    return;
+                    printf("         You lose...\n");
+                    break;
                 }
                 i++;
             }
-        }
 
-        printf("Draw\n");
+            if (player->kicker[i] == 0) {
+                printf("            Draw\n");
+            }
+        }
     }
+    printf("=============================\n");
 }
 
 int main(void) {
@@ -184,7 +180,9 @@ int main(void) {
         }
         printf("> COM changed %d cards\n", i);
 
-        printf("Showdown\n");
+        printf("=============================\n");
+        printf("          Showdown\n");
+        printf("=============================\n");
 
         printf("--------- Your card ---------\n");
         print_cards(player_hand);
@@ -193,7 +191,6 @@ int main(void) {
         printf("---------- COM card ---------\n");
         print_cards(com_hand);
         print_status(&com_status);
-        printf("-----------------------------\n");
 
         judge(&player_status, &com_status);
 
@@ -210,7 +207,7 @@ int main(void) {
                 break;
             }
 
-            printf("y/Y or n/N: ");
+            printf("Input 'y'/'Y'or 'n'/'N': ");
         }
 
         while (getchar() != '\n')
