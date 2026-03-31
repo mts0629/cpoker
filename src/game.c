@@ -62,7 +62,13 @@ int *com_think(void) {
     return indices;
 }
 
-Card *change_cards(Card *player_hand, const int *indices) {
+Card *change_cards(Card *player_hand, const int *indices,
+                   const bool print_card) {
+    if (indices[0] == -1) {
+        printf("> Cards didn't be changed\n");
+        return player_hand;
+    }
+
     Card *head = player_hand;
 
     int i = 0;
@@ -72,6 +78,11 @@ Card *change_cards(Card *player_hand, const int *indices) {
         Card *old = head;
         for (int j = 0; j < indices[i]; j++) {
             old = old->next;
+        }
+
+        if (print_card) {
+            printf("> Change %s with a drawn card: ", get_card_str(old));
+            printf("%s\n", get_card_str(new));
         }
 
         if (old->prev != NULL) {
@@ -165,13 +176,13 @@ int main(void) {
         printf("Change indices (0-4): ");
         int *indices = parse_input();
 
-        player_hand = change_cards(player_hand, indices);
+        player_hand = change_cards(player_hand, indices, true);
         player_hand = sort_cards(player_hand);
 
         get_status(&player_status, player_hand);
 
         indices = com_think();
-        com_hand = change_cards(com_hand, indices);
+        com_hand = change_cards(com_hand, indices, false);
         com_hand = sort_cards(com_hand);
 
         int i = 0;

@@ -198,10 +198,9 @@ static char *get_num_str(const Card *card) {
     }
 }
 
-static char *get_card_str(const Card *card) {
+char *get_card_str(const Card *card) {
     static char buf[16];
-    snprintf(buf, sizeof(buf), "|%s%2s|", get_suit_str(card),
-             get_num_str(card));
+    snprintf(buf, sizeof(buf), "%s%2s", get_suit_str(card), get_num_str(card));
 
     return buf;
 }
@@ -210,7 +209,7 @@ void print_cards(Card *hand) {
     Card *cur = hand;
     printf("┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐\n");
     while (1) {
-        printf("%s", get_card_str(cur));
+        printf("|%s|", get_card_str(cur));
         if (cur->next == NULL) {
             break;
         }

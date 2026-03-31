@@ -50,6 +50,9 @@ Card *sort_cards(Card *cards);
 // Get status
 void get_status(Status *status, const Card *hand);
 
+// Get suit and number of the card
+char *get_card_str(const Card *card);
+
 // Print cards
 void print_cards(Card *hand);
 
