@@ -35,14 +35,23 @@ typedef struct {
     uint8_t kicker[6];  // No pair + sentinel
 } Status;
 
-// Initialize the deck
-void init_deck(void);
+// Prepare the deck
+void prepare_deck(void);
 
 // Reset the deck
 void reset_deck(void);
 
+// Discard the deck
+void discard_deck(void);
+
 // Shuffle cards in a deck n times
 void shuffle_deck(const uint32_t n);
+
+// Draw a card from a top of the deck
+Card *draw_from_deck(void);
+
+// Draw a hand (5 cards) from a top of the deck
+Card *draw_hand(void);
 
 // Sort cards
 Card *sort_cards(Card *cards);
@@ -53,19 +62,10 @@ void get_status(Status *status, const Card *hand);
 // Get suit and number of the card
 char *get_card_str(const Card *card);
 
-// Print cards
-void print_cards(Card *hand);
-
-// Draw a card from a top of the deck
-Card *draw_from_deck(void);
-
-// Draw a hand (5 cards) from a top of the deck
-Card *draw_hand(void);
+// Print hand
+void print_hand(Card *hand);
 
 // Print status
 void print_status(const Status *status);
-
-// Finalize the deck
-void fini_deck(void);
 
 #endif  // CARD_H

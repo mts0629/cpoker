@@ -149,7 +149,7 @@ void judge(const Status *player, const Status *com) {
 }
 
 int main(void) {
-    init_deck();
+    prepare_deck();
 
     bool playing = true;
     while (playing) {
@@ -167,7 +167,7 @@ int main(void) {
         get_status(&player_status, player_hand);
 
         printf("--------- Your card ---------\n");
-        print_cards(player_hand);
+        print_hand(player_hand);
         print_status(&player_status);
 
         Status com_status;
@@ -196,11 +196,11 @@ int main(void) {
         printf("=============================\n");
 
         printf("--------- Your card ---------\n");
-        print_cards(player_hand);
+        print_hand(player_hand);
         print_status(&player_status);
 
         printf("---------- COM card ---------\n");
-        print_cards(com_hand);
+        print_hand(com_hand);
         print_status(&com_status);
 
         judge(&player_status, &com_status);
@@ -225,7 +225,7 @@ int main(void) {
             ;  // Skip remaining chars
     }
 
-    fini_deck();
+    discard_deck();
 
     return 0;
 }

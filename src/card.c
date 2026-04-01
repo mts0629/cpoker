@@ -13,11 +13,11 @@ static Card *top = NULL;
 // List of pointers of cards (used for deallocation)
 static Card *card_ptrs[NUM_CARDS];
 
-void init_deck(void) {
+void prepare_deck(void) {
     Card *prev = top;
 
-    // Add cards to the deck
-    int idx = 0;
+    // Allocate memories of cards in the deck
+    int i = 0;
     for (int s = 0; s < 4; s++) {
         for (uint8_t n = 1; n <= 13; n++) {
             Card *card = malloc(sizeof(Card));
@@ -34,13 +34,18 @@ void init_deck(void) {
 
             prev = card;
 
-            card_ptrs[idx] = card;
-            idx++;
+            card_ptrs[i] = card;
+            i++;
         }
     }
 }
 
 void reset_deck(void) {
+    // Reset top of the deck
+    top = card_ptrs[0];
+
+    // Reset order of the cards
+    // Heart > diamond > club > spade
     for (int i = 0; i < NUM_CARDS; i++) {
         Card *p = card_ptrs[i];
         if (i == 0) {
@@ -54,10 +59,12 @@ void reset_deck(void) {
         } else {
             p->next = card_ptrs[i + 1];
         }
+    }
+}
 
-        if (i == 0) {
-            top = p;
-        }
+void discard_deck(void) {
+    for (int i = 0; i < NUM_CARDS; i++) {
+        free(card_ptrs[i]);
     }
 }
 
@@ -94,6 +101,42 @@ void shuffle_deck(uint32_t n) {
 
         i++;
     }
+}
+
+Card *draw_from_deck(void) {
+    if (top == NULL) {
+        return NULL;
+    }
+
+    Card *drawn = top;
+
+    top = top->next;
+    if (top != NULL) {
+        top->prev = NULL;
+    }
+
+    drawn->next = NULL;
+
+    return drawn;
+}
+
+Card *draw_hand(void) {
+    Card *head = NULL;
+    Card *prev = head;
+
+    for (int i = 0; i < 5; i++) {
+        Card *card = draw_from_deck();
+        if (head == NULL) {
+            head = card;
+        } else {
+            prev->next = card;
+            card->prev = prev;
+        }
+
+        prev = card;
+    }
+
+    return head;
 }
 
 Card *sort_cards(Card *cards) {
@@ -148,112 +191,6 @@ Card *sort_cards(Card *cards) {
     }
 
     return new_head;
-}
-
-static char *get_suit_str(const Card *card) {
-    switch (card->suit) {
-        case HEART:
-            return "♥";
-            break;
-        case DIAMOND:
-            return "♦";
-            break;
-        case CLUB:
-            return "♣";
-            break;
-        case SPADE:
-            return "♠";
-            break;
-        default:
-            fprintf(stderr, "Invalid suit\n");
-            return NULL;
-            break;
-    }
-}
-
-static char *get_num_str(const Card *card) {
-    if (card->number > 13) {
-        fprintf(stderr, "Invalid number\n");
-        return NULL;
-    }
-
-    static char buf[3];
-    switch (card->number) {
-        case 13:
-            return "K";
-            break;
-        case 12:
-            return "Q";
-            break;
-        case 11:
-            return "J";
-            break;
-        case 1:
-            return "A";
-            break;
-        default:
-            snprintf(buf, sizeof(buf), "%d", card->number);
-            return buf;
-            break;
-    }
-}
-
-char *get_card_str(const Card *card) {
-    static char buf[16];
-    snprintf(buf, sizeof(buf), "%s%2s", get_suit_str(card), get_num_str(card));
-
-    return buf;
-}
-
-void print_cards(Card *hand) {
-    Card *cur = hand;
-    printf("┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐\n");
-    while (1) {
-        printf("|%s|", get_card_str(cur));
-        if (cur->next == NULL) {
-            break;
-        }
-
-        printf(" ");
-        cur = cur->next;
-    }
-    printf("\n└───┘ └───┘ └───┘ └───┘ └───┘\n");
-}
-
-Card *draw_from_deck(void) {
-    if (top == NULL) {
-        return NULL;
-    }
-
-    Card *drawn = top;
-
-    top = top->next;
-    if (top != NULL) {
-        top->prev = NULL;
-    }
-
-    drawn->next = NULL;
-
-    return drawn;
-}
-
-Card *draw_hand(void) {
-    Card *head = NULL;
-    Card *prev = head;
-
-    for (int i = 0; i < 5; i++) {
-        Card *card = draw_from_deck();
-        if (head == NULL) {
-            head = card;
-        } else {
-            prev->next = card;
-            card->prev = prev;
-        }
-
-        prev = card;
-    }
-
-    return head;
 }
 
 // Comparison function for sorting by descending order
@@ -376,6 +313,76 @@ void get_status(Status *status, const Card *hand) {
     }
 }
 
+static char *get_suit_str(const Card *card) {
+    switch (card->suit) {
+        case HEART:
+            return "♥";
+            break;
+        case DIAMOND:
+            return "♦";
+            break;
+        case CLUB:
+            return "♣";
+            break;
+        case SPADE:
+            return "♠";
+            break;
+        default:
+            fprintf(stderr, "Invalid suit\n");
+            return NULL;
+            break;
+    }
+}
+
+static char *get_num_str(const Card *card) {
+    if (card->number > 13) {
+        fprintf(stderr, "Invalid number\n");
+        return NULL;
+    }
+
+    static char buf[3];
+    switch (card->number) {
+        case 13:
+            return "K";
+            break;
+        case 12:
+            return "Q";
+            break;
+        case 11:
+            return "J";
+            break;
+        case 1:
+            return "A";
+            break;
+        default:
+            snprintf(buf, sizeof(buf), "%d", card->number);
+            return buf;
+            break;
+    }
+}
+
+char *get_card_str(const Card *card) {
+    static char buf[16];
+    snprintf(buf, sizeof(buf), "%s%2s", get_suit_str(card), get_num_str(card));
+
+    return buf;
+}
+
+void print_hand(Card *hand) {
+    Card *cur = hand;
+    printf("┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐\n");
+    while (1) {
+        printf("|%s|", get_card_str(cur));
+        if (cur->next == NULL) {
+            break;
+        }
+
+        printf(" ");
+        cur = cur->next;
+    }
+    printf("\n└───┘ └───┘ └───┘ └───┘ └───┘\n");
+}
+
 static char *get_hand_str(const Hand hand) {
     switch (hand) {
         case NO_PAIR:
@@ -481,10 +488,4 @@ void print_status(const Status *status) {
         }
     }
     printf("\n");
-}
-
-void fini_deck(void) {
-    for (int i = 0; i < NUM_CARDS; i++) {
-        free(card_ptrs[i]);
-    }
 }
