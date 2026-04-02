@@ -210,6 +210,9 @@ int main(void) {
         while (1) {
             fgets(input, sizeof(input), stdin);
 
+            while (getchar() != '\n')
+                ;  // Skip remaining chars
+
             if ((input[0] == 'y') || (input[0] == 'Y')) {
                 playing = true;
                 break;
@@ -220,9 +223,6 @@ int main(void) {
 
             printf("Input 'y'/'Y'or 'n'/'N': ");
         }
-
-        while (getchar() != '\n')
-            ;  // Skip remaining chars
     }
 
     discard_deck();
