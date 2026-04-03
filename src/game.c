@@ -62,14 +62,13 @@ int *com_think(void) {
     return indices;
 }
 
-Card *change_cards(Card *player_hand, const int *indices,
-                   const bool print_card) {
+Card *change_cards(Card *hand, const int *indices, const bool print_card) {
     if (indices[0] == -1) {
         printf("> Cards didn't be changed\n");
-        return player_hand;
+        return hand;
     }
 
-    Card *head = player_hand;
+    Card *head = hand;
 
     int i = 0;
     while (indices[i] != -1) {
@@ -106,41 +105,41 @@ Card *change_cards(Card *player_hand, const int *indices,
     return head;
 }
 
-void judge(const Status *player, const Status *com) {
-    // Compare hand
+void judge(const Status *your_status, const Status *com_status) {
+    // com_statuspare hand
     printf("=============================\n");
-    if (player->hand > com->hand) {
+    if (your_status->hand > com_status->hand) {
         printf("          You win!\n");
-    } else if (player->hand < com->hand) {
+    } else if (your_status->hand < com_status->hand) {
         printf("         You lose...\n");
     } else {
-        // Compare rank
-        if (player->rank[0] > com->rank[0]) {
+        // com_statuspare rank
+        if (your_status->rank[0] > com_status->rank[0]) {
             printf("          You win!\n");
-        } else if (player->rank[0] < com->rank[0]) {
+        } else if (your_status->rank[0] < com_status->rank[0]) {
             printf("         You lose...\n");
-        } else if (player->hand == TWO_PAIR) {
-            // Compare 2nd rank
-            if (player->rank[1] > com->rank[1]) {
+        } else if (your_status->hand == TWO_PAIR) {
+            // com_statuspare 2nd rank
+            if (your_status->rank[1] > com_status->rank[1]) {
                 printf("          You win!\n");
-            } else if (player->rank[1] < com->rank[1]) {
+            } else if (your_status->rank[1] < com_status->rank[1]) {
                 printf("         You lose...\n");
             }
         } else {
-            // Compare kickers
+            // com_statuspare kickers
             int i = 0;
-            while (player->kicker[i] != 0) {
-                if (player->kicker[i] > com->kicker[i]) {
+            while (your_status->kicker[i] != 0) {
+                if (your_status->kicker[i] > com_status->kicker[i]) {
                     printf("          You win!\n");
                     break;
-                } else if (player->kicker[i] < com->kicker[i]) {
+                } else if (your_status->kicker[i] < com_status->kicker[i]) {
                     printf("         You lose...\n");
                     break;
                 }
                 i++;
             }
 
-            if (player->kicker[i] == 0) {
+            if (your_status->kicker[i] == 0) {
                 printf("            Draw\n");
             }
         }
@@ -148,42 +147,61 @@ void judge(const Status *player, const Status *com) {
     printf("=============================\n");
 }
 
+// Player's hand and status
+typedef struct {
+    Card *hand;
+    Status status;
+} Player;
+
+void showdown(Player *you, Player *com) {
+    printf("=============================\n");
+    printf("          Showdown\n");
+    printf("=============================\n");
+
+    printf("--------- Your card ---------\n");
+    print_hand(you->hand);
+    print_status(&you->status);
+
+    printf("---------- COM card ---------\n");
+    print_hand(com->hand);
+    get_status(&com->status, com->hand);
+    print_status(&com->status);
+
+    judge(&you->status, &com->status);
+}
+
 int main(void) {
     prepare_deck();
 
+    Player you, com;
     bool playing = true;
     while (playing) {
         reset_deck();
 
         shuffle_deck(100);
 
-        Card *player_hand = draw_hand();
-        player_hand = sort_cards(player_hand);
+        you.hand = draw_hand();
+        you.hand = sort_cards(you.hand);
 
-        Card *com_hand = draw_hand();
-        com_hand = sort_cards(com_hand);
+        com.hand = draw_hand();
+        com.hand = sort_cards(com.hand);
 
-        Status player_status;
-        get_status(&player_status, player_hand);
+        get_status(&you.status, you.hand);
 
         printf("--------- Your card ---------\n");
-        print_hand(player_hand);
-        print_status(&player_status);
-
-        Status com_status;
-        get_status(&com_status, com_hand);
+        print_hand(you.hand);
+        print_status(&you.status);
 
         printf("Change indices (0-4): ");
         int *indices = parse_input();
 
-        player_hand = change_cards(player_hand, indices, true);
-        player_hand = sort_cards(player_hand);
-
-        get_status(&player_status, player_hand);
+        you.hand = change_cards(you.hand, indices, true);
+        you.hand = sort_cards(you.hand);
+        get_status(&you.status, you.hand);
 
         indices = com_think();
-        com_hand = change_cards(com_hand, indices, false);
-        com_hand = sort_cards(com_hand);
+        com.hand = change_cards(com.hand, indices, false);
+        com.hand = sort_cards(com.hand);
 
         int i = 0;
         while (indices[i] != -1) {
@@ -191,19 +209,7 @@ int main(void) {
         }
         printf("> COM changed %d cards\n", i);
 
-        printf("=============================\n");
-        printf("          Showdown\n");
-        printf("=============================\n");
-
-        printf("--------- Your card ---------\n");
-        print_hand(player_hand);
-        print_status(&player_status);
-
-        printf("---------- COM card ---------\n");
-        print_hand(com_hand);
-        print_status(&com_status);
-
-        judge(&player_status, &com_status);
+        showdown(&you, &com);
 
         printf("Play again? (y/n): ");
         char input[2];
