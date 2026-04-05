@@ -1,12 +1,12 @@
+#include "game.h"
+
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "card.h"
-
-char *get_input(void) {
+static char *get_input(void) {
     static char input[32];
     memset(input, (int)'\0', sizeof(input));
 
@@ -19,10 +19,14 @@ char *get_input(void) {
             ;
     }
 
+    input[len - 1] = '\0';
+
     return input;
 }
 
 int *parse_input(void) {
+    printf("> Change indices [0-4]: ");
+
     char *input = get_input();
 
     static int indices[6] = {0};
@@ -56,6 +60,21 @@ int *parse_input(void) {
     return indices;
 }
 
+static bool command_is(char *str, const char *command) {
+    // Convert string to small letters
+    char *p = str;
+    while (*p != '\0') {
+        *p = tolower(*p);
+        p++;
+    }
+
+    if (strcmp(str, command) == 0) {
+        return true;
+    }
+
+    return false;
+}
+
 int *com_think(void) {
     static int indices[6] = {0};
     for (int i = 0; i < 6; i++) {
@@ -78,15 +97,21 @@ int *com_think(void) {
     return indices;
 }
 
-Card *change_cards(Card *hand, const int *indices, const bool print) {
+Card *change_cards(Card *hand, const int *indices, const bool is_player) {
     if (indices[0] == -1) {
-        if (print) {
-            printf("> Cards didn't be changed\n");
+        if (is_player) {
+            printf("> Player's cards didn't be changed\n");
+        } else {
+            printf("> COM's cards didn't be changed\n");
         }
         return hand;
     }
 
     Card *head = hand;
+
+    if (is_player) {
+        printf("> Change cards: ");
+    }
 
     int i = 0;
     while (indices[i] != -1) {
@@ -97,9 +122,11 @@ Card *change_cards(Card *hand, const int *indices, const bool print) {
             old = old->next;
         }
 
-        if (print) {
-            printf("> Change %s with a drawn card: ", get_card_str(old));
-            printf("%s\n", get_card_str(new));
+        if (is_player) {
+            char buf[16], buf2[16];
+            get_card_str(buf, sizeof(buf), old);
+            get_card_str(buf2, sizeof(buf2), new);
+            printf("%s to %s", buf, buf2);
         }
 
         if (old->prev != NULL) {
@@ -118,32 +145,62 @@ Card *change_cards(Card *hand, const int *indices, const bool print) {
         }
 
         i++;
+
+        if (is_player) {
+            if (indices[i] != -1) {
+                printf(", ");
+            }
+        }
+    }
+
+    if (is_player) {
+        printf("\n");
+    } else {
+        printf("> COM changed %d cards\n", i);
     }
 
     return head;
 }
 
-void judge(const Status *your_status, const Status *com_status) {
+bool check_call(void) {
+    printf("> Call or fold? [c/f]: ");
+
+    while (true) {
+        char *input = get_input();
+
+        if (command_is(input, "c")) {
+            return true;
+        } else if (command_is(input, "f")) {
+            break;
+        }
+
+        printf("> Plase input 'c' (call) or 'f' (fold): ");
+    }
+
+    return false;
+}
+
+static void judge(const Status *your_status, const Status *com_status) {
     // Compare hand
     if (your_status->hand > com_status->hand) {
         printf("> You win!\n");
     } else if (your_status->hand < com_status->hand) {
         printf("> You lose...\n");
     } else {
-        // com_statuspare rank
+        // Compare rank
         if (your_status->rank[0] > com_status->rank[0]) {
             printf("> You win!\n");
         } else if (your_status->rank[0] < com_status->rank[0]) {
             printf("> You lose...\n");
         } else if (your_status->hand == TWO_PAIR) {
-            // com_statuspare 2nd rank
+            // Compare 2nd rank
             if (your_status->rank[1] > com_status->rank[1]) {
                 printf("> You win!\n");
             } else if (your_status->rank[1] < com_status->rank[1]) {
                 printf("> You lose...\n");
             }
         } else {
-            // com_statuspare kickers
+            // Compare kickers
             int i = 0;
             while (your_status->kicker[i] != 0) {
                 if (your_status->kicker[i] > com_status->kicker[i]) {
@@ -163,12 +220,6 @@ void judge(const Status *your_status, const Status *com_status) {
     }
 }
 
-// Player's hand and status
-typedef struct {
-    Card *hand;
-    Status status;
-} Player;
-
 void showdown(Player *you, Player *com) {
     printf("=============================\n");
     printf("          Showdown\n");
@@ -186,83 +237,20 @@ void showdown(Player *you, Player *com) {
     judge(&you->status, &com->status);
 }
 
-int main(void) {
-    prepare_deck();
+bool check_contine(void) {
+    printf("> Play again? [y/n]: ");
 
-    Player you, com;
-    bool playing = true;
-    while (playing) {
-        reset_deck();
+    while (true) {
+        char *input = get_input();
 
-        shuffle_deck(100);
-
-        you.hand = draw_hand();
-        you.hand = sort_cards(you.hand);
-
-        com.hand = draw_hand();
-        com.hand = sort_cards(com.hand);
-
-        get_status(&you.status, you.hand);
-
-        printf("--------- Your card ---------\n");
-        print_hand(you.hand);
-        print_status(&you.status);
-
-        printf("> Change indices (0-4): ");
-        int *indices = parse_input();
-
-        you.hand = change_cards(you.hand, indices, true);
-        you.hand = sort_cards(you.hand);
-        get_status(&you.status, you.hand);
-
-        indices = com_think();
-        com.hand = change_cards(com.hand, indices, false);
-        com.hand = sort_cards(com.hand);
-
-        int i = 0;
-        while (indices[i] != -1) {
-            i++;
-        }
-        printf("> COM changed %d cards\n", i);
-
-        printf("> Call (c) or fold (f)?: ");
-        bool call = false;
-        while (1) {
-            char *input = get_input();
-
-            if ((input[0] == 'c') || (input[0] == 'C')) {
-                call = true;
-                break;
-            } else if ((input[0] == 'f') || (input[0] == 'F')) {
-                break;
-            }
-
-            printf("> Input 'c'/'C'or 'f'/'F': ");
+        if (command_is(input, "y")) {
+            return true;
+        } else if (command_is(input, "n")) {
+            break;
         }
 
-        if (call) {
-            showdown(&you, &com);
-        } else {
-            printf("> You lose...\n");
-        }
-
-        printf("> Play again? (y/n): ");
-        while (1) {
-            char *input = get_input();
-
-            if ((input[0] == 'y') || (input[0] == 'Y')) {
-                playing = true;
-                break;
-            } else if ((input[0] == 'n') || (input[0] == 'N')) {
-                playing = false;
-                break;
-            }
-
-            printf("> Input 'y'/'Y'or 'n'/'N': ");
-        }
+        printf("> Plase input 'y' (yes) or 'n' (no): ");
     }
 
-    discard_deck();
-
-    return 0;
+    return false;
 }

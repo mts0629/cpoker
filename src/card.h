@@ -1,6 +1,7 @@
 #ifndef CARD_H
 #define CARD_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 // Suit
@@ -60,7 +61,7 @@ Card *sort_cards(Card *cards);
 void get_status(Status *status, const Card *hand);
 
 // Get suit and number of the card
-char *get_card_str(const Card *card);
+void get_card_str(char *buf, const size_t size, const Card *card);
 
 // Print hand
 void print_hand(Card *hand);
