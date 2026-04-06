@@ -1,6 +1,7 @@
 #include "game.h"
 
 #include <ctype.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,37 +26,62 @@ static char *get_input(void) {
 }
 
 int *parse_input(void) {
-    printf("> Change indices [0-4]: ");
-
-    char *input = get_input();
-
     static int indices[6] = {0};
-    for (int i = 0; i < 6; i++) {
-        indices[i] = -1;
-    }
 
-    const char *p = input;
-    int i = 0;
-    char buf[2] = {0};
-    while (*p != '\0') {
-        if (isdigit(*p)) {
-            buf[0] = *p;
+    bool has_invalid_token;
+    do {
+        printf("> Change cards? (index: [0-4]): ");
+        char *input = get_input();
 
-            int d = strtol(buf, NULL, 10);
-            if ((d < 0) || (d > 4)) {
-                fprintf(stderr, "> Error index: %d\n", d);
+        // Clear indices
+        for (int i = 0; i < 6; i++) {
+            indices[i] = -1;
+        }
+
+        const char *p = input;
+        int i = 0, j = 0;
+        has_invalid_token = false;
+        char token[16] = {0};
+        while (true) {
+            // Separator: space, comma, NUL
+            if (isspace(*p) || (*p == ',') || (*p == '\0')) {
+                token[j] = '\0';
+                // Parse a token
+                errno = 0;
+                char *e;
+                int n = strtol(token, &e, 10);
+                if ((*e != '\0') || (e == token) || (errno == ERANGE)) {
+                    printf("> Invalid input: %s\n", token);
+                    has_invalid_token = true;
+                    break;
+                } else {
+                    if ((n < 0) || (n > 4)) {
+                        printf("> Invalid index: %d\n", n);
+                        has_invalid_token = true;
+                        break;
+                    } else {
+                        indices[i] = n;
+                        i++;
+                    }
+                }
+
+                j = 0;
             } else {
-                indices[i] = d;
-                i++;
+                token[j] = *p;
+                j++;
             }
-        }
 
-        if (i == 5) {
-            break;
-        }
+            if (i == 5) {
+                break;
+            }
 
-        p++;
-    }
+            if (*p == '\0') {
+                break;
+            }
+
+            p++;
+        }
+    } while (has_invalid_token);
 
     return indices;
 }
