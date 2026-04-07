@@ -365,23 +365,6 @@ void get_card_str(char *buf, const size_t size, const Card *card) {
     snprintf(buf, size, "%s%2s", get_suit_str(card), get_num_str(card));
 }
 
-void print_hand(Card *hand) {
-    Card *cur = hand;
-    char buf[16];
-    printf("┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐\n");
-    while (1) {
-        get_card_str(buf, sizeof(buf), cur);
-        printf("|%s|", buf);
-        if (cur->next == NULL) {
-            break;
-        }
-
-        printf(" ");
-        cur = cur->next;
-    }
-    printf("\n└───┘ └───┘ └───┘ └───┘ └───┘\n");
-}
-
 static char *get_hand_str(const Hand hand) {
     switch (hand) {
         case NO_PAIR:

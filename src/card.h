@@ -63,9 +63,6 @@ void get_status(Status *status, const Card *hand);
 // Get suit and number of the card
 void get_card_str(char *buf, const size_t size, const Card *card);
 
-// Print hand
-void print_hand(Card *hand);
-
 // Print status
 void print_status(const Status *status);
 

@@ -21,6 +21,8 @@ bool check_call(void);
 
 bool check_contine(void);
 
+void print_hand(Card *hand);
+
 void showdown(Player *you, Player *com);
 
 #endif  // GAME_H

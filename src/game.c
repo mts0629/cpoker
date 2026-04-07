@@ -252,18 +252,47 @@ static void judge(const Status *your_status, const Status *com_status) {
     }
 }
 
+static void loop_hand(Card *hand) {
+    Card *cur = hand;
+    char buf[8];
+    while (1) {
+        get_card_str(buf, sizeof(buf), cur);
+        printf("|%s|", buf);
+        if (cur->next == NULL) {
+            break;
+        }
+
+        printf(" ");
+        cur = cur->next;
+    }
+}
+
+void print_hand(Card *hand) {
+    printf("          Your hand          \n");
+    printf("┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐\n");
+    loop_hand(hand);
+    printf("\n");
+    printf("└───┘ └───┘ └───┘ └───┘ └───┘\n");
+}
+
+static void print_hands(Card *you, Card *com) {
+    printf("          Your hand           |            COM hand          \n");
+    printf("┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ | ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐\n");
+    loop_hand(you);
+    printf(" | ");
+    loop_hand(com);
+    printf("\n");
+    printf("└───┘ └───┘ └───┘ └───┘ └───┘ | └───┘ └───┘ └───┘ └───┘ └───┘\n");
+}
+
 void showdown(Player *you, Player *com) {
-    printf("=============================\n");
-    printf("          Showdown\n");
-    printf("=============================\n");
+    printf("> Showdown\n");
 
-    printf("--------- Your card ---------\n");
-    print_hand(you->hand);
-    print_status(&you->status);
+    print_hands(you->hand, com->hand);
 
-    printf("---------- COM card ---------\n");
-    print_hand(com->hand);
     get_status(&com->status, com->hand);
+
+    print_status(&you->status);
     print_status(&com->status);
 
     judge(&you->status, &com->status);
