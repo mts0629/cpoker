@@ -46,6 +46,12 @@ int *parse_input(void) {
             // Separator: space, comma, NUL
             if (isspace(*p) || (*p == ',') || (*p == '\0')) {
                 token[j] = '\0';
+
+                // Break when no input
+                if (strlen(token) == 0) {
+                    break;
+                }
+
                 // Parse a token
                 errno = 0;
                 char *e;
