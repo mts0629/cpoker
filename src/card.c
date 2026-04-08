@@ -404,34 +404,45 @@ static char *get_hand_str(const Hand hand) {
     }
 }
 
-void print_status(const Status *status) {
-    printf("%s", get_hand_str(status->hand));
+static char *append_str(char *buf, const char *str) {
+    char *p = buf;
+    const size_t len = strlen(str);
+    strncpy(p, str, len);
+    return (p + len);
+}
 
+void get_status_str(char *buf, const Status *status) {
+    char *p = buf;
+    char *hand = get_hand_str(status->hand);
+    p = append_str(p, hand);
+
+    char num[3];
     if (status->hand != NO_PAIR) {
         const uint8_t *p_rank = status->rank;
-        printf(" / rank: ");
+        p = append_str(p, " / rank: ");
         while (1) {
             switch (*p_rank) {
                 case 14:
-                    printf("A");
+                    p = append_str(p, "A");
                     break;
                 case 13:
-                    printf("K");
+                    p = append_str(p, "K");
                     break;
                 case 12:
-                    printf("Q");
+                    p = append_str(p, "Q");
                     break;
                 case 11:
-                    printf("J");
+                    p = append_str(p, "J");
                     break;
                 default:
-                    printf("%u", *p_rank);
+                    snprintf(num, sizeof(num), "%u", *p_rank);
+                    p = append_str(p, num);
                     break;
             }
             p_rank++;
 
             if (*p_rank != 0) {
-                printf(",");
+                p = append_str(p, ",");
             } else {
                 break;
             }
@@ -441,33 +452,36 @@ void print_status(const Status *status) {
     if ((status->hand != STRAIGHT) && (status->hand != FLUSH) &&
         (status->hand != STRAIGHT_FLUSH) && (status->hand != ROYAL_FLUSH)) {
         const uint8_t *p_kicker = status->kicker;
-        printf(" / kicker: ");
+        p = append_str(p, " / kicker: ");
         while (1) {
             switch (*p_kicker) {
                 case 14:
-                    printf("A");
+                    p = append_str(p, "A");
                     break;
                 case 13:
-                    printf("K");
+                    p = append_str(p, "K");
                     break;
                 case 12:
-                    printf("Q");
+                    p = append_str(p, "Q");
                     break;
                 case 11:
-                    printf("J");
+                    p = append_str(p, "J");
                     break;
                 default:
-                    printf("%u", *p_kicker);
+                    snprintf(num, sizeof(num), "%u", *p_kicker);
+                    p = append_str(p, num);
+                    break;
                     break;
             }
             p_kicker++;
 
             if (*p_kicker != 0) {
-                printf(",");
+                p = append_str(p, ",");
             } else {
                 break;
             }
         }
     }
-    printf("\n");
+
+    *p = '\0';
 }

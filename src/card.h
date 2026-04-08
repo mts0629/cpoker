@@ -64,6 +64,6 @@ void get_status(Status *status, const Card *hand);
 void get_card_str(char *buf, const size_t size, const Card *card);
 
 // Print status
-void print_status(const Status *status);
+void get_status_str(char *buf, const Status *status);
 
 #endif  // CARD_H

@@ -22,7 +22,9 @@ int main(void) {
         get_status(&you.status, you.hand);
 
         print_hand(you.hand);
-        print_status(&you.status);
+        char buf[64];
+        get_status_str(buf, &you.status);
+        printf("%s\n", buf);
 
         int *indices = parse_input();
         you.hand = change_cards(you.hand, indices, true);

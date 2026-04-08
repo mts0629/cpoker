@@ -292,8 +292,15 @@ void showdown(Player *you, Player *com) {
 
     get_status(&com->status, com->hand);
 
-    print_status(&you->status);
-    print_status(&com->status);
+    char buf[64];
+    get_status_str(buf, &you->status);
+    printf("%s", buf);
+
+    printf("\r\033[30C| ");
+
+    get_status_str(buf, &com->status);
+    printf("%s", buf);
+    printf("\n");
 
     judge(&you->status, &com->status);
 }
