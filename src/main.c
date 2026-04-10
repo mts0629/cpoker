@@ -31,11 +31,17 @@ int main(void) {
         you.hand = sort_cards(you.hand);
         get_status(&you.status, you.hand);
 
+        printf("\r\033[7A");
+        print_hand(you.hand);
+        get_status_str(buf, &you.status);
+        printf("%s\n", buf);
+
         indices = com_think();
         com.hand = change_cards(com.hand, indices, false);
         com.hand = sort_cards(com.hand);
 
         if (check_call()) {
+            printf("\r\033[7A");
             showdown(&you, &com);
         } else {
             printf("> You folded...\n");
