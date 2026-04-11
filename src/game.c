@@ -58,13 +58,13 @@ int *parse_input(void) {
                 int n = strtol(token, &e, 10);
                 if ((*e != '\0') || (e == token) || (errno == ERANGE)) {
                     printf("> Invalid input: %s\n", token);
-                    printf("\r\033[1A\033[0K");
+                    printf("\033[2A\r\033[0K");
                     has_invalid_token = true;
                     break;
                 } else {
                     if ((n < 0) || (n > 4)) {
                         printf("> Invalid index: %d\n", n);
-                        printf("\r\033[1A\033[0K");
+                        printf("\033[2A\r\033[0K");
                         has_invalid_token = true;
                         break;
                     } else {
@@ -132,6 +132,7 @@ int *com_think(void) {
 }
 
 Card *change_cards(Card *hand, const int *indices, const bool is_player) {
+    printf("\033[1A\r\033[0K");
     if (indices[0] == -1) {
         if (is_player) {
             printf("> Player's cards didn't be changed\n");
